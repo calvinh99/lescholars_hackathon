@@ -1,0 +1,1 @@
+Clone and setup lerobot repo, activate conda env.
