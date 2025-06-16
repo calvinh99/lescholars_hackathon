@@ -1,0 +1,110 @@
+{
+    "type": "gym_manipulator",
+    "robot": {
+        "type": "so101_follower",
+        "port": "/dev/ttyACM1",
+        "cameras": {
+            "front": {
+                "type": "opencv",
+                "index_or_path": 2,
+                "height": 480,
+                "width": 640,
+                "fps": 30
+            }
+        },
+        "end_effector_bounds": {
+            "min": [
+                0.26,
+                -0.06,
+                0.22
+            ],
+            "max": [
+                0.32,
+                0.06,
+                0.35
+            ]
+        },
+        "end_effector_step_sizes": {
+            "x": 0.025,
+            "y": 0.025,
+            "z": 0.025
+        }
+    },
+    "teleop": {
+        "type": "so101_leader",
+        "port": "/dev/ttyACM0",
+        "use_degrees": true
+    },
+    "wrapper": {
+        "display_cameras": false,
+        "add_joint_velocity_to_observation": true,
+        "add_current_to_observation": true,
+        "add_ee_pose_to_observation": true,
+        "crop_params_dict": {
+            "observation.images.front": [
+                270,
+                170,
+                90,
+                190
+            ]
+        },
+        "resize_size": [
+            128,
+            128
+        ],
+        "control_time_s": 20.0,
+        "use_gripper": true,
+        "gripper_quantization_threshold": null,
+        "gripper_penalty": -0.02,
+        "gripper_penalty_in_reward": false,
+        "fixed_reset_joint_positions": [
+            0.0,
+            0.0,
+            0.0,
+            90.0,
+            0.0,
+            5.0
+        ],
+        "reset_time_s": 2.5,
+        "control_mode": "gamepad"
+    },
+    "name": "real_robot",
+    "mode": "record",
+    "repo_id": "calvinedit/HILSER_record",
+    "dataset_root": null,
+    "task": "teleop_recording",
+    "num_episodes": 2,
+    "episode": 0,
+    "pretrained_policy_name_or_path": null,
+    "device": "cuda",
+    "push_to_hub": true,
+    "fps": 30,
+    "features": {
+        "observation.images.front": {
+            "type": "VISUAL",
+            "shape": [
+                4,
+                640,
+                480
+            ]
+        },
+        "observation.state": {
+            "type": "STATE",
+            "shape": [
+                15
+            ]
+        },
+        "action": {
+            "type": "ACTION",
+            "shape": [
+                3
+            ]
+        }
+    },
+    "features_map": {
+        "observation.images.front": "observation.images.front",
+        "observation.state": "observation.state",
+        "action": "action"
+    },
+    "reward_classifier_pretrained_path": null
+}

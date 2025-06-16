@@ -1,0 +1,1 @@
+{"task": "teleop_recording", "frames": [{"timestamp": 0.014070749282836914, "observation": {"shoulder_pan.pos": 2.9783761729906217, "shoulder_lift.pos": -25.630252100840337, "elbow_flex.pos": -43.290236290682124, "wrist_flex.pos": 98.88888888888889, "wrist_roll.pos": -54.1504033307312, "gripper.pos": 1.1502029769959403, "front": 

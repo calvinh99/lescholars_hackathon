@@ -13,22 +13,22 @@ def parse_args():
     parser = argparse.ArgumentParser(description='Teleoperation Recording Script')
 
     # Robot configuration
-    parser.add_argument('--robot.type', default='so101_follower', help='Robot type')
-    parser.add_argument('--robot.port', default='/dev/ttyACM1', help='Robot port')
-    parser.add_argument('--robot.id', default='lescholars_follower_arm', help='Robot ID')
+    parser.add_argument('--robot_type', default='so101_follower', help='Robot type')
+    parser.add_argument('--robot_port', default='/dev/ttyACM1', help='Robot port')
+    parser.add_argument('--robot_id', default='lescholars_follower_arm', help='Robot ID')
 
     # Teleop configuration
-    parser.add_argument('--teleop.type', default='so101_leader', help='Teleop type')
-    parser.add_argument('--teleop.port', default='/dev/ttyACM0', help='Teleop port')
-    parser.add_argument('--teleop.id', default='lescholars_leader_arm', help='Teleop ID')
+    parser.add_argument('--teleop_type', default='so101_leader', help='Teleop type')
+    parser.add_argument('--teleop_port', default='/dev/ttyACM0', help='Teleop port')
+    parser.add_argument('--teleop_id', default='lescholars_leader_arm', help='Teleop ID')
 
     # Display configuration
     parser.add_argument('--display_data', default='true', help='Display data flag')
 
     # Dataset configuration
-    # parser.add_argument('--dataset.repo_id', required=True, help='Dataset repository ID')
-    # parser.add_argument('--dataset.num_episodes', type=int, default=2, help='Number of episodes')
-    # parser.add_argument('--dataset.single_task', required=True, help='Task description')
+    # parser.add_argument('--dataset_repo_id', required=True, help='Dataset repository ID')
+    # parser.add_argument('--dataset_num_episodes', type=int, default=2, help='Number of episodes')
+    # parser.add_argument('--dataset_single_task', required=True, help='Task description')
 
     # Camera configuration
     parser.add_argument('--robot_cameras', default='{ "front": {"type": "opencv", "index_or_path": 4, "width": 640, "height": 480, "fps": 30}}',
@@ -52,21 +52,20 @@ def main():
 
     # Initialize Rerun if display is enabled
     if args.display_data.lower() == 'true':
-        rr.init("teleop_visualization")
-        rr.connect()
+        rr.init("teleop_visualization", spawn=True)
 
     # Create dataset directory if it doesn't exist
     os.makedirs("recorded_data", exist_ok=True)
 
     robot_config = SO101FollowerConfig(
-        port=args.robot.port,
-        id=args.robot.id,
+        port=args.robot_port,
+        id=args.robot_id,
         cameras=camera_config
     )
 
     teleop_config = SO101LeaderConfig(
-        port=args.teleop.port,
-        id=args.teleop.id,
+        port=args.teleop_port,
+        id=args.teleop_id,
     )
 
     robot = SO101Follower(robot_config)
@@ -79,9 +78,8 @@ def main():
     episode_data = []
 
     try:
-        while episode_count < args.dataset.num_episodes:
-            print(f"\nStarting Episode {episode_count + 1}/{args.dataset.num_episodes}")
-            print(f"Task: {args.dataset.single_task}")
+        while episode_count < 2:  # Default to 2 episodes since dataset args are commented out
+            print(f"\nStarting Episode {episode_count + 1}/2")
             print("Press Enter to start recording, Ctrl+C to stop...")
             input()
 
@@ -96,16 +94,16 @@ def main():
                 # Log camera feed if display is enabled
                 if args.display_data.lower() == 'true':
                     if "front" in observation and observation["front"] is not None:
-                        rr.log_image("camera/front", observation["front"])
+                        rr.log("camera/front", rr.Image(observation["front"]))
 
                     # Log robot state
                     if hasattr(robot, "get_state"):
                         state = robot.get_state()
                         if state is not None:
                             if hasattr(state, "joint_positions"):
-                                rr.log_scalar("robot/joint_positions", state.joint_positions)
+                                rr.log("robot/joint_positions", rr.Scalar(state.joint_positions))
                             if hasattr(state, "end_effector_position"):
-                                rr.log_point("robot/end_effector", state.end_effector_position)
+                                rr.log("robot/end_effector", rr.Point3D(state.end_effector_position))
 
                 # Record frame data
                 frame_data = {
@@ -122,7 +120,7 @@ def main():
         # Save the recorded episode
         if episode_frames:
             episode_data.append({
-                "task": args.dataset.single_task,
+                "task": "teleop_recording",  # Default task name since dataset args are commented out
                 "frames": episode_frames
             })
             episode_count += 1
